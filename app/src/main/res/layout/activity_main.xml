@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_splash.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/colorPrimary">
+
+<!-- Agrega elementos de diseño para la presentación si es necesario -->
+    <TextView
+        android:id="@+id/helloTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¡Hola Mundo!"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:layout_centerInParent="true" />
+
+
+</RelativeLayout>
