@@ -25,6 +25,7 @@ public class Oscilloscope extends AppCompatActivity {
     private Button stopButton;
     private EditText editTextAmp;
     private EditText editTextCicleDuty;
+    private EditText editTextFrec;
     private WebView webView;
 
 
@@ -44,17 +45,17 @@ public class Oscilloscope extends AppCompatActivity {
         stopButton = findViewById(R.id.stopButton);
         editTextAmp = findViewById(R.id.editTextAmp);
         editTextCicleDuty = findViewById(R.id.editTextCicleDuty);
+        //editTextFrec = findViewById(R.id.editTextFrec);
 
         webView = (WebView) findViewById(R.id.webview);
         webView.setWebViewClient(new WebViewClient()); // Asegura que los enlaces se abran dentro del WebView
         webView.getSettings().setJavaScriptEnabled(true); // Habilita JavaScript si es necesario
 
         // URL del widget de Ubidots
-        // https://stem.ubidots.com/app/dashboards/public/widget/nHR1alzUcLL4VCx4vjULTflGRvf-n4idV4Zs-_453mc
-        String url = "https://stem.ubidots.com/app/dashboards/public/widget/iRovDoPxCUQYigQ2tjXLYIvg6qqItKow4Xht0EXxjzU?from=1705021357461&to=1705021435061&datePicker=true";
+        String url = "https://stem.ubidots.com/app/dashboards/public/widget/nHR1alzUcLL4VCx4vjULTflGRvf-n4idV4Zs-_453mc?from=1705825757448&to=1705912157448&datePicker=true";       //Cambiar por el link publico del respectivo widget de la gráfica de Ubidots
         webView.loadUrl(url);
 
-        wifiClient = new WifiClient("192.168.1.8", 80); // Reemplaza con la IP y puerto del ESP32
+        wifiClient = new WifiClient("192.168.1.2", 80); // Reemplaza con la IP y puerto del ESP32
 
         triangleButton.setOnClickListener(v -> {
             wifiClient.sendString("T");
@@ -92,7 +93,6 @@ public class Oscilloscope extends AppCompatActivity {
 
         // Inicializa el cliente de Ubidots
         String apiKey = "BBUS-uj2EJdJpGj8qNcGVd9AEMQDl26yorC"; // Reemplaza con tu API Key real
-        // Data Api: BBUS-uj2EJdJpGj8qNcGVd9AEMQDl26yorC
         ubidotsClient = new UbidotsClient(apiKey);
     }
 
@@ -121,6 +121,7 @@ public class Oscilloscope extends AppCompatActivity {
         String ampValueStr = editTextAmp.getText().toString();
         String cicleDutyValueStr = editTextCicleDuty.getText().toString();
 
+
         // Verificar si alguno de los EditText está vacío
         if (ampValueStr.isEmpty() || cicleDutyValueStr.isEmpty()) {
             // Mostrar un mensaje de error o tomar alguna acción
@@ -129,23 +130,23 @@ public class Oscilloscope extends AppCompatActivity {
         }
 
         try {
-            float ampValue = Float.parseFloat(ampValueStr);
-            int cicleDutyValue = Integer.parseInt(cicleDutyValueStr);
+            float ampValue = (float) ((Float.parseFloat(ampValueStr))*(25.5));
+            float cicleDutyValue = Float.parseFloat(cicleDutyValueStr)/100;
 
             // Verificar si los valores están en los rangos especificados
-            if (ampValue < 0 || ampValue > 10) {
+            if (ampValue < 0 || ampValue > 255) {
                 Toast.makeText(Oscilloscope.this, "El valor de amplitud debe estar entre 0 y 10.", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
-            if (cicleDutyValue < 0 || cicleDutyValue > 100) {
+            if (cicleDutyValue < 0 || cicleDutyValue > 1) {
                 Toast.makeText(Oscilloscope.this, "El valor del ciclo de trabajo debe estar entre 0 y 100.", Toast.LENGTH_SHORT).show();
                 return false;
             }
             Toast.makeText(Oscilloscope.this, "START", Toast.LENGTH_SHORT).show();
             // Si los valores son válidos, continúa con el envío de los datos
             wifiClient.sendString("TRUE");
-            String dataToSend = ampValue + "," + cicleDutyValue;
+            String dataToSend = ampValue + ";" + cicleDutyValue;
             wifiClient.sendString(dataToSend);
 
             obtenerDatosDeUbidots();
